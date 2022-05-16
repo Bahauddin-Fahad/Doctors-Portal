@@ -1,18 +1,16 @@
-import React, { useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import React, { useEffect } from "react";
 import {
-  useSignInWithEmailAndPassword,
-  useSendPasswordResetEmail,
+  useCreateUserWithEmailAndPassword,
+  useUpdateProfile,
 } from "react-firebase-hooks/auth";
-import auth from "../../firebase.init";
 import { useForm } from "react-hook-form";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import auth from "../../firebase.init";
+import useToken from "../../Hooks/useToken";
 import Loading from "../Shared/Loading";
 import SocialLogin from "./SocialLogin";
-import ResetPass from "./ResetPass";
-import useToken from "../../Hooks/useToken";
-const Login = () => {
-  const emailRef = useRef("");
+
+const Signup = () => {
   const navigate = useNavigate();
   const location = useLocation();
   let from = location.state?.from?.pathname || "/";
@@ -22,12 +20,19 @@ const Login = () => {
     handleSubmit,
   } = useForm();
 
-  //Sign In with Email and Password
-  const [signInWithEmailAndPassword, user, loading, error] =
-    useSignInWithEmailAndPassword(auth);
+  //Creating User with Email And Password
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth, { sendEmailVerification: true });
+  //Updating Profile
+  const [updateProfile, updating, updateError] = useUpdateProfile(auth);
 
-  // Password Reset
-  const [sendPasswordResetEmail, sending] = useSendPasswordResetEmail(auth);
+  const onSubmit = async (data) => {
+    // console.log(data);
+    const email = data.email;
+    const password = data.password;
+    await createUserWithEmailAndPassword(email, password);
+    await updateProfile({ displayName: data.name });
+  };
 
   const [token] = useToken(user);
   useEffect(() => {
@@ -36,44 +41,48 @@ const Login = () => {
     }
   }, [token, navigate, from]);
 
-  if (loading || sending) {
+  if (loading || updating) {
     return <Loading />;
   }
 
   let signInError;
-  if (error) {
+  if (error || updateError) {
     signInError = (
       <p className="text-[red]">
         <span>{error?.message}</span>
       </p>
     );
   }
-
-  // Login Form Submit Function
-  const onSubmit = (data) => {
-    // console.log(data);
-    const email = data.email;
-    const password = data.password;
-    signInWithEmailAndPassword(email, password);
-  };
-
-  // Password Reset Function
-  const resetPassword = async () => {
-    const email = emailRef.current.value;
-    // console.log(email);
-    if (email) {
-      await sendPasswordResetEmail(email);
-      toast.success(`Email has been sent to ${email}`, { theme: "colored" });
-    } else {
-      toast.error("Opps!!! Enter your Email First", { theme: "colored" });
-    }
-  };
   return (
     <div className="min-h-screen flex justify-center items-center">
       <div className="card w-96 shadow-2xl">
         <div className="card-body">
-          <h2 className="text-center text-xl font-bold">Login</h2>
+          <h2 className="text-center text-xl font-bold">Sign Up</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Name</span>
+              </label>
+              <input
+                type="Text"
+                placeholder="Enter Your Name"
+                className="input input-bordered"
+                {...register("name", {
+                  required: {
+                    value: true,
+                    message: "Name is required",
+                  },
+                })}
+              />
+              <label className="label">
+                {errors.name?.type === "required" && (
+                  <span className="label-text-alt text-[red]">
+                    {errors.name.message}
+                  </span>
+                )}
+              </label>
+            </div>
+
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Email</span>
@@ -141,22 +150,13 @@ const Login = () => {
             </div>
             {signInError}
             <div className="form-control mt-6">
-              <input type="submit" className="btn" value="Login" />
+              <input type="submit" className="btn" value="Sign up" />
             </div>
-            <label
-              htmlFor="reset-pass-modal"
-              onClick={resetPassword}
-              to=""
-              className="label-text-alt link link-hover"
-            >
-              Forgot password?
-            </label>
-            <ResetPass resetPassword={resetPassword} />
           </form>
           <p className="text-sm text-center">
-            New to Doctors Portal?
-            <Link className="text-primary ml-2" to="/signup">
-              Create New Account
+            Already have an account?
+            <Link className="text-primary ml-2" to="/login">
+              Login Here
             </Link>
           </p>
           <div className="divider">OR</div>
@@ -167,4 +167,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

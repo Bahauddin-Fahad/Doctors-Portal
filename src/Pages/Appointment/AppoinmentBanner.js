@@ -11,7 +11,7 @@ const AppoinmentBanner = ({ date, setDate }) => {
           className="max-w-md rounded-lg shadow-2xl"
         />
         <div className="lg:mr-28">
-          <DayPicker mode="single" selected={date} onSelect={setDate} />
+          <DayPicker mode="single" selected={date} onDayClick={setDate} />
         </div>
       </div>
     </div>
