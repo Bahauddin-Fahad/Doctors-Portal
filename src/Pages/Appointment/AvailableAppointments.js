@@ -14,9 +14,11 @@ const AvailableAppointments = ({ date }) => {
     isLoading,
     refetch,
   } = useQuery(["available", formettedDate], () =>
-    fetch(
-      `http://localhost:5000/available?treatmentDate=${formettedDate}`
-    ).then((res) => res.json())
+    axios
+      .get(`http://localhost:5000/available?treatmentDate=${formettedDate}`)
+      .then((data) => {
+        return data.data;
+      })
   );
 
   if (isLoading) {

@@ -1,11 +1,12 @@
 import React from "react";
 
 const Service = ({ service, setTreatment }) => {
-  const { name, slots } = service;
+  const { name, slots, price } = service;
   return (
     <div className="card w-96 bg-base-100 shadow-xl mx-auto">
       <div className="card-body text-center">
         <h2 className="text-xl text-secondary font-semibold">{name}</h2>
+        <p className="font-semibold">Price : ${price}</p>
         <p>
           {slots.length ? (
             <span>{slots[0]}</span>

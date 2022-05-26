@@ -1,3 +1,4 @@
+import axios from "axios";
 import React from "react";
 import { useQuery } from "react-query";
 import Loading from "../Shared/Loading";
@@ -8,12 +9,15 @@ const Users = () => {
     isLoading,
     refetch,
   } = useQuery("users", () =>
-    fetch("http://localhost:5000/users", {
-      method: "GET",
-      headers: {
-        authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    }).then((res) => res.json())
+    axios
+      .get("http://localhost:5000/users", {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      })
+      .then((data) => {
+        return data.data;
+      })
   );
   if (isLoading) {
     return <Loading />;
@@ -24,15 +28,15 @@ const Users = () => {
       <h2 className="text-lg text-primary font-bold">
         All Users: {users.length}
       </h2>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto mx-5">
         <table className="table w-full">
           {/* <!-- head --> */}
           <thead>
             <tr>
+              <th>Sl No.</th>
               <th>Email</th>
-              <th>Name</th>
-              <th>Job</th>
-              <th>Favorite Color</th>
+              <th>Make Admin</th>
+              <th>Remove User</th>
             </tr>
           </thead>
           <tbody>

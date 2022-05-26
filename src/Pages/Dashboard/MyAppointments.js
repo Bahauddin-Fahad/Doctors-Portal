@@ -1,8 +1,8 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import auth from "../../firebase.init";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 const MyAppointments = () => {
   const [user] = useAuthState(auth);
@@ -47,6 +47,7 @@ const MyAppointments = () => {
         });
     }
   }, [user, navigate]);
+  console.log(appointments);
   return (
     <div>
       <h2 className="text-lg text-primary font-bold">
@@ -54,7 +55,6 @@ const MyAppointments = () => {
       </h2>
       <div className="overflow-x-auto">
         <table className="table w-full">
-          {/* <!-- head --> */}
           <thead>
             <tr>
               <th></th>
@@ -62,16 +62,39 @@ const MyAppointments = () => {
               <th>Date</th>
               <th>Time</th>
               <th>Treatment</th>
+              <th>Payment</th>
             </tr>
           </thead>
           <tbody>
             {appointments.map((appointment, index) => (
-              <tr>
+              <tr key={index}>
                 <th>{index + 1}</th>
                 <td>{appointment.patientName}</td>
                 <td>{appointment.treatmentDate}</td>
                 <td>{appointment.treatmentSlot}</td>
                 <td>{appointment.treatmentName}</td>
+                <td>
+                  {appointment.treatmentPrice && !appointment.paid && (
+                    <Link to={`/dashboard/payment/${appointment._id}`}>
+                      <button className="btn btn-xs btn-success text-white ">
+                        Pay Now
+                      </button>
+                    </Link>
+                  )}
+                  {appointment.treatmentPrice && appointment.paid && (
+                    <div>
+                      <div className="text-center text-white w-1/3 font-semibold bg-emerald-200 rounded-md mx-auto">
+                        PAID
+                      </div>
+                      <p className="font-semibold">
+                        Transaction Id:{" "}
+                        <span className="text-success ">
+                          {appointment.transactionId}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -5,7 +5,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import axios from "axios";
 import { toast } from "react-toastify";
 const BookingModal = ({ treatment, setTreatment, date, refetch }) => {
-  const { _id, name, slots } = treatment;
+  const { _id, name, slots, price } = treatment;
   const [user] = useAuthState(auth);
   const selectedDate = format(date, "PP");
 
@@ -18,6 +18,7 @@ const BookingModal = ({ treatment, setTreatment, date, refetch }) => {
     const bookingDetails = {
       treatmentId: _id,
       treatmentName: name,
+      treatmentPrice: price,
       treatmentDate: selectedDate,
       treatmentSlot: slot,
       patientName: user.displayName,
@@ -59,6 +60,7 @@ const BookingModal = ({ treatment, setTreatment, date, refetch }) => {
             ✕
           </label>
           <h3 className="text-lg font-bold">{name}</h3>
+          <h2 className="font-semibold text-primary">Price: {price}</h2>
           <form onSubmit={handleBooking} className="card-body">
             <div className="form-control">
               <input
